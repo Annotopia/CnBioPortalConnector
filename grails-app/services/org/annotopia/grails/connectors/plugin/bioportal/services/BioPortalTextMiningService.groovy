@@ -120,7 +120,7 @@ class BioPortalTextMiningService implements ITextMiningService {
 			http.request(Method.GET, ContentType.JSON) {
 				requestContentType = ContentType.URLENC
 				
-				headers.'Authorization' = 'apikey token=fef6b9da-4b3b-46d2-9d83-9a1a718f6a22'
+				headers.'Authorization' = 'apikey token=' + apiKey
 				
 				response.success = { resp, json ->
 					log.info json.size();

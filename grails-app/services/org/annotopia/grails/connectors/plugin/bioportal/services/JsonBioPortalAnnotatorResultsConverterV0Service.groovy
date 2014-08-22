@@ -200,7 +200,7 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 			http.request(Method.POST, ContentType.JSON) {
 				requestContentType = ContentType.JSON
 				
-				headers.'Authorization' = 'apikey token=fef6b9da-4b3b-46d2-9d83-9a1a718f6a22'
+				headers.'Authorization' = 'apikey token=' + apiKey
 				
 				log.warn retrieveTermsMessage
 				
