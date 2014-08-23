@@ -123,8 +123,6 @@ class BioPortalTextMiningService implements ITextMiningService {
 				headers.'Authorization' = 'apikey token=' + apiKey
 				
 				response.success = { resp, json ->
-					log.info json.size();
-					
 					json.eachWithIndex { annotation, i ->
 						log.info annotation
 						
