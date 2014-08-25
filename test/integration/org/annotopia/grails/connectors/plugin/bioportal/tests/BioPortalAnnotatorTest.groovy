@@ -37,6 +37,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	def grailsApplication = new org.codehaus.groovy.grails.commons.DefaultGrailsApplication()
 	
 	def bioPortalTextMiningService
+	def bioPortalTermSearchService
 	
 	private LOG_SEPARATOR() {
 		logSeparator('=' as char);
@@ -99,6 +100,16 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 		HashMap parameters = new HashMap();
 		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalTextMiningService.textmine("http://paolociccarese.info", "APP protein accumulation is not good for humans.", parameters);
+		log.info result
+		assertNotNull result
+	}
+	
+	@Test
+	public void testSearchWithApiKeyAndContentDefined() {
+		log.info "TEST:testSearchWithApiKeyAndContentDefined"
+		HashMap parameters = new HashMap();
+		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		JSONObject result = bioPortalTermSearchService.search("APP", parameters);
 		log.info result
 		assertNotNull result
 	}

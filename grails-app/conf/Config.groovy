@@ -36,7 +36,7 @@ environments {
 			
 			trace  'grails.app', // Necessary for Bootstrap logging
 				   'org.annotopia.grails.services.org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalTextMiningService',
-				   'org.annotopia.grails.services.org.annotopia.grails.connectors.plugin.bioportal.services.JsonBioPortalAnnotatorResultsConverterV0Service'
+				   'org.annotopia.grails.services.org.annotopia.grails.connectors.plugin.bioportal.services.JsonBioPortalAnnotatorResultsConverterV0Service',
 			       'org.annotopia.grails.connectors.plugin.bioportal.tests'
 				  
 		}
