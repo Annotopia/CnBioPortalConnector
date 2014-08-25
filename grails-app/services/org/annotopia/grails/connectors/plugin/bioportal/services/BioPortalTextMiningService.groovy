@@ -102,6 +102,7 @@ class BioPortalTextMiningService implements ITextMiningService {
 			log.info("NO PROXY selected while accessing " + uri);
 		}
 		
+		JSONObject jsonResponse = new JSONObject();
 		try {
 			def http = new HTTPBuilder(uri);
 			
@@ -116,7 +117,7 @@ class BioPortalTextMiningService implements ITextMiningService {
 				http.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, domeoConfigAccessService.getProxyHttpHost());
 			}
 			
-			JSONObject jsonResponse = new JSONObject();
+			
 			http.request(Method.GET, ContentType.JSON) {
 				requestContentType = ContentType.URLENC
 				
@@ -124,7 +125,7 @@ class BioPortalTextMiningService implements ITextMiningService {
 				
 				response.success = { resp, json ->
 					json.eachWithIndex { annotation, i ->
-						log.info annotation
+						log.trace annotation
 						
 						def annotations = annotation.annotations;
 						
@@ -132,7 +133,7 @@ class BioPortalTextMiningService implements ITextMiningService {
 						def ontologyId = annotation.annotatedClass.links.ontology
 						
 						annotations.each{ ann ->
-							log.info conceptId + " - " + ontologyId + " - " + ann;
+							log.trace conceptId + " - " + ontologyId + " - " + ann;
 						}
 					}
 					
@@ -162,7 +163,7 @@ class BioPortalTextMiningService implements ITextMiningService {
 			log.error("ConnectException: " + ex.getMessage())
 			throw new RuntimeException(ex);
 		}
-		return new JSONObject();
+		return jsonResponse;
 	}
 	
 	BioPortalAnnotatorRequestParameters defaultParameters(){

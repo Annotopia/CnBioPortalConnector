@@ -99,6 +99,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 		HashMap parameters = new HashMap();
 		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalTextMiningService.textmine("http://paolociccarese.info", "APP protein accumulation is not good for humans.", parameters);
+		log.info result
 		assertNotNull result
 	}
 }

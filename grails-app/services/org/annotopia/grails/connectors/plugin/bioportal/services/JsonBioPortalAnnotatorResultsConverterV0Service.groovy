@@ -111,6 +111,7 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 		//  Annotations
 		// --------------------------------------------------------------------
 		Map<String, String> terms = new HashMap<String, String>();
+		Map<String, String> cache = new HashMap<String, String>();
 		JSONArray annotations = new JSONArray();
 		results.each{
 			println it.annotatedClass['@id']
@@ -132,9 +133,8 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 				
 				JSONObject body = new JSONObject();
 				body.put(IOJsonLd.jsonLdId, it.annotatedClass['@id']);
-				body.put(IORdfs.label, it.annotatedClass['@id']);
-				body.put(IODublinCoreTerms.description, "conceptLabel");
 				body.put("domeo:category", "NCBO BioPortal concept");
+				cache.put(it.annotatedClass['@id'], body);
 				
 				JSONArray bodies = new JSONArray();
 				bodies.add(body);
@@ -168,8 +168,7 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 		}
 		
 		JSONObject retrieveTermsMessage = retrieveTerms(terms);
-		println retrieveTermsMessage;
-		
+
 		BioPortalAnnotatorRequestParameters params = new BioPortalAnnotatorRequestParameters();
 		params.apikey = apiKey;
 		//params.text = URLEncoder.encode(retrieveTermsMessage, MiscUtils.DEFAULT_ENCODING);
@@ -195,19 +194,27 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 			if(connectorsConfigAccessService.isProxyDefined()) {
 				http.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, connectorsConfigAccessService.getProxyHttpHost());
 			}
-			
+
+			http.setHeaders(Accept: 'application/json')
 			// perform a POST request, expecting TEXT response
 			http.request(Method.POST, ContentType.JSON) {
 				requestContentType = ContentType.JSON
-				
-				headers.'Authorization' = 'apikey token=' + apiKey
-				
-				log.warn retrieveTermsMessage
-				
-				body = retrieveTermsMessage
+				headers.Authorization = 'apikey token=' + apiKey
+				headers.'Content-Type' = 'application/json'	
+
+				body = retrieveTermsMessage.toString()
 				
 				response.success = { resp, json ->
-					log.info json
+					json.keySet().each {  
+						json.get(it).each { item ->
+							def cachedItem = cache.get(item['@id']);
+							cachedItem.put(IORdfs.label, item['prefLabel']);
+							cachedItem.put('http://www.w3.org/2004/02/skos/core#prefLabel', item['prefLabel']);
+							item['synonym'].each { sitem -> 
+								cachedItem.put('http://www.w3.org/2004/02/skos/core#altLabel', sitem);
+							}					
+						}
+					}
 				}
 				
 				 response.'404' = { resp ->
@@ -231,7 +238,7 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 				 }
 			 
 				 response.failure = { resp, json ->
-					 log.error('Failure: ' + resp.getStatusLine() + ' ' + resp.entity.content.text)
+					 log.error('++Failure: ' + resp.getStatusLine() + ' + ' + resp.getStatusLine().getReasonPhrase())
 				 }
 			 }
 		 } catch (groovyx.net.http.HttpResponseException ex) {
