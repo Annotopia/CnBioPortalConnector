@@ -36,7 +36,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class JsonBioPortalVocabulariesService {
+class BioPortalVocabulariesService {
 	static transactional = false
 	
 		final static ONTS1 = ["PR":"http://data.bioontology.org/ontologies/PR", "NIFSTD":"http://data.bioontology.org/ontologies/NIFSTD"] 
@@ -44,7 +44,7 @@ class JsonBioPortalVocabulariesService {
 	
 		def grailsApplication;
 		def connectorsConfigAccessService;
-		def jsonBioPortalAnnotatorResultsConverterV0Service;
+		def bioPortalTextMiningDomeoConversionService;
 		def jsonBioPortalAnnotatorResultsConverterV1Service;
 	
 		final static APIKEY = "?apikey=";
@@ -394,7 +394,7 @@ class JsonBioPortalVocabulariesService {
 							  annotations.each{ ann ->
 								  //println conceptId + " - " + ontologyId + " - " + ann;
 							  }
-							  jsonResponse = jsonBioPortalAnnotatorResultsConverterV0Service.convert(apikey, url, text, json);
+							  jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, url, text, json);
 						  }
 					  } else {
 					  

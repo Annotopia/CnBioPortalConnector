@@ -18,9 +18,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.annotopia.grails.connectors.plugin.bioportal.services
+package org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo
 
-import grails.converters.JSON
 import groovyx.net.http.ContentType
 import groovyx.net.http.EncoderRegistry
 import groovyx.net.http.HTTPBuilder
@@ -33,6 +32,7 @@ import java.util.regex.Pattern
 import org.annotopia.grails.connectors.ConnectorHttpResponseException
 import org.annotopia.grails.connectors.MiscUtils
 import org.annotopia.grails.connectors.plugin.bioportal.BioPortalAnnotatorRequestParameters
+import org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalVocabulariesService
 import org.annotopia.grails.connectors.vocabularies.IOAccessRestrictions
 import org.annotopia.grails.connectors.vocabularies.IODomeo
 import org.annotopia.grails.connectors.vocabularies.IODublinCoreTerms
@@ -47,7 +47,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class JsonBioPortalAnnotatorResultsConverterV0Service {
+class BioPortalTextMiningDomeoConversionService {
 
 	def connectorsConfigAccessService;
 	
@@ -141,7 +141,7 @@ class JsonBioPortalAnnotatorResultsConverterV0Service {
 				
 				JSONObject source = new JSONObject();
 				source.put(IOJsonLd.jsonLdId, it.annotatedClass.links.ontology);
-				source.put(IORdfs.label, JsonBioPortalVocabulariesService.ONTS2.get(it.annotatedClass.links.ontology));
+				source.put(IORdfs.label, BioPortalVocabulariesService.ONTS2.get(it.annotatedClass.links.ontology));
 				body.put("dct:source", source);
 				
 				terms.put(it.annotatedClass['@id'], it.annotatedClass.links.ontology);
