@@ -188,10 +188,9 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 				
 				response.success = { resp, json ->
 					if(true) {
-						jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, "", contentText, json)
+						jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, resourceUri, contentText, json)
 					} else {
-						//TermSearchResultsV1Converter c = new TermSearchResultsV1Converter();
-						//c.convert(json, jsonResponse, pageSize, ONTS2);
+						jsonResponse = bioPortalTextMiningConverterService.convert(apikey, resourceUri, contentText, json)
 					}
 				}
 						
