@@ -31,9 +31,6 @@ import org.annotopia.grails.connectors.ITermSearchService
 import org.annotopia.grails.connectors.ITextMiningService
 import org.annotopia.grails.connectors.MiscUtils
 import org.annotopia.grails.connectors.plugin.bioportal.BioPortalAnnotatorRequestParameters
-import org.annotopia.grails.connectors.plugin.bioportal.converters.TermSearchResultsV1Converter
-import org.annotopia.grails.connectors.plugin.bioportal.converters.domeo.TermSearchResultsV0Converter
-import org.annotopia.grails.connectors.plugin.bioportal.converters.domeo.TextMiningResultsV0Converter
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTextMiningDomeoConversionService
 import org.apache.http.conn.params.ConnRoutePNames
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -75,6 +72,7 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 	@Override
 	public JSONObject search(String content, HashMap parametrization) {
 		log.info 'search:Content: ' + content + ' Parametrization: ' + parametrization
+		long startTime = System.currentTimeMillis();
 		
 		try {
 			String apikey = verifyApikey(parametrization);
@@ -93,6 +91,7 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 				
 			log.info("Search term with URI: " + uri);
 
+			JSONObject jsonReturn = new JSONObject();
 			JSONObject jsonResponse = new JSONObject();
 			try {
 				def http = new HTTPBuilder(uri)
@@ -105,11 +104,20 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 					requestContentType = ContentType.URLENC
 					headers.'Authorization' = 'apikey token=' + apikey
 					
-					response.success = { resp, json ->						
-						if(true) {
+					response.success = { resp, json ->	
+						log.info json					
+						if(false) {
 							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else {
 							bioPortalTermSearchConversionService.convert(json, jsonResponse, pageSize, ONTS2);
+							
+							jsonReturn.put("status", "results");
+							
+							jsonResponse.put("duration", System.currentTimeMillis() - startTime + "ms");
+							jsonResponse.put("total", "-1");
+							jsonResponse.put("offset", pageNumber);
+							jsonResponse.put("max", pageSize);
+							jsonReturn.put("result", jsonResponse);
 						}						
 					}
 					
@@ -143,7 +151,7 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 				log.error("ConnectException: " + ex.getMessage())
 				throw new RuntimeException(ex);
 			}			
-			return jsonResponse;
+			return jsonReturn;
 		} catch(Exception e) {
 			JSONObject returnMessage = new JSONObject();
 			returnMessage.put("error", e.getMessage());
@@ -187,7 +195,7 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 				headers.'Authorization' = 'apikey token=' + apikey
 				
 				response.success = { resp, json ->
-					if(true) {
+					if(false) {
 						jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, resourceUri, contentText, json)
 					} else {
 						jsonResponse = bioPortalTextMiningConverterService.convert(apikey, resourceUri, contentText, json)
