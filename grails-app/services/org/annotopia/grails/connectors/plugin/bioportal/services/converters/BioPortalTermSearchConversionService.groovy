@@ -20,6 +20,8 @@
  */
 package org.annotopia.grails.connectors.plugin.bioportal.services.converters
 
+import java.text.SimpleDateFormat;
+
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -28,9 +30,10 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 class BioPortalTermSearchConversionService {
 	
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+	
 	public void convert(def jsonResponse, JSONObject jsonResults, String pageSize, def ONTS2) {
-		jsonResults.put("@type", "co:Set");
-		
+
 		// New implementation
 		println 'Page: ' + jsonResponse.page
 		println 'Page count: ' + jsonResponse.pageCount
@@ -49,6 +52,6 @@ class BioPortalTermSearchConversionService {
 			element.put("rdf:isDefinedBy", source);
 			elements.add(element);
 		}
-		jsonResults.put("co:element", elements);
+		jsonResults.put("items", elements);
 	}
 }
