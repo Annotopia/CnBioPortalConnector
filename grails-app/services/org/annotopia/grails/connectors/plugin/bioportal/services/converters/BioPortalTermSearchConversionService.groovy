@@ -29,7 +29,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class BioPortalTermSearchConversionService {
 	
 	public void convert(def jsonResponse, JSONObject jsonResults, String pageSize, def ONTS2) {
-		jsonResponse.put("@type", "co:Set");
+		jsonResults.put("@type", "co:Set");
 		
 		// New implementation
 		println 'Page: ' + jsonResponse.page
@@ -42,13 +42,13 @@ class BioPortalTermSearchConversionService {
 			JSONObject element = new JSONObject();
 			element.put("@id", it['@id']);
 			element.put("rdfs:label", it.prefLabel);
-			element.put("dc:description", it.definition);
+			element.put("dc:description", it.definition[0]);
 			
 			JSONObject source = new JSONObject();
 			source.put("@id", it.links.ontology);
 			element.put("rdf:isDefinedBy", source);
 			elements.add(element);
 		}
-		jsonResponse.put("co:element", elements);
+		jsonResults.put("co:element", elements);
 	}
 }
