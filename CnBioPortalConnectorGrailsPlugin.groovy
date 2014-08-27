@@ -10,7 +10,8 @@ class CnBioPortalConnectorGrailsPlugin {
 
     // TODO Fill in these fields
     def title = "Cn Bio Portal Connector Plugin" // Headline display name of the plugin
-     def author = "Dr. Paolo Ciccarese"
+	def service = "org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalService"
+    def author = "Dr. Paolo Ciccarese"
     def authorEmail = "paolo.ciccarese@gmail.com"
     def description = '''\
 Connector to BioPortal.
