@@ -25,6 +25,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 import org.annotopia.grails.connectors.vocabularies.IOAccessRestrictions
+import org.annotopia.grails.connectors.vocabularies.IOCollectionsOntology
 import org.annotopia.grails.connectors.vocabularies.IODomeo
 import org.annotopia.grails.connectors.vocabularies.IODublinCoreTerms
 import org.annotopia.grails.connectors.vocabularies.IOFoaf
@@ -48,7 +49,7 @@ class BioPortalTextMiningConverterService {
 	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 	
-	JSONObject convert(def url, def text, def results) {
+	JSONObject convert(def apiKey, def url, def text, def results) {
 		String snippetUrn = URN_SNIPPET_PREFIX + org.annotopia.grails.connectors.utils.UUID.uuid();
 		
 		JSONObject annotationSet = new JSONObject();
