@@ -42,6 +42,8 @@ class BioPortalTermSearchConversionService {
 			
 			JSONObject source = new JSONObject();
 			source.put("@id", it.links.ontology);
+			source.put("label", ONTS2.get(it.links.ontology)); // rdfs:label
+			
 			element.put("isDefinedBy", source);	// rdf:isDefinedBy
 			elements.add(element);
 		}
