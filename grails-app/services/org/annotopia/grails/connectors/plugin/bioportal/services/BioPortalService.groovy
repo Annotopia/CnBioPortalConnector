@@ -51,7 +51,6 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 	final static PAGESIZE = "&pagesize=";
 	
 	def connectorsConfigAccessService;
-	def bioPortalVocabulariesService;
 	def termSearchResultsConverterV0Service;
 	
 	// New formats
@@ -105,7 +104,7 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 					
 					response.success = { resp, json ->			
 						if(true) {
-							
+							// Default format
 							JSONObject jsonReturn = new JSONObject();
 							jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
 							jsonReturn.put("total", json.size());
