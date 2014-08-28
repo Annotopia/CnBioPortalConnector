@@ -37,6 +37,7 @@ class BioPortalVocabulariesListConversionService {
 		jsonResponse.each {  // iterate over JSON 'status' object in the response:
 			JSONObject element = new JSONObject();
 			element.put("@id", it['@id']);
+			element.put("@type", it['@type']);
 			element.put("label", it.name);			// rdfs:label
 			element.put("acronym", it.acronym);	// dc:description
 			elements.add(element);
