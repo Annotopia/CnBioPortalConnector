@@ -20,7 +20,8 @@
  */
 package org.annotopia.grails.connectors.plugin.bioportal.services
 
-import grails.util.Holders
+import java.util.HashMap;
+
 import groovyx.net.http.ContentType
 import groovyx.net.http.EncoderRegistry
 import groovyx.net.http.HTTPBuilder
@@ -29,17 +30,16 @@ import groovyx.net.http.Method
 import org.annotopia.grails.connectors.ConnectorHttpResponseException
 import org.annotopia.grails.connectors.ITermSearchService
 import org.annotopia.grails.connectors.ITextMiningService
+import org.annotopia.grails.connectors.IVocabulariesListService
 import org.annotopia.grails.connectors.MiscUtils
 import org.annotopia.grails.connectors.plugin.bioportal.BioPortalAnnotatorRequestParameters
-import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTextMiningDomeoConversionService
 import org.apache.http.conn.params.ConnRoutePNames
 import org.codehaus.groovy.grails.web.json.JSONObject
-import org.springframework.context.ApplicationContext
 
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class BioPortalService implements ITermSearchService, ITextMiningService {
+class BioPortalService implements IVocabulariesListService, ITermSearchService, ITextMiningService {
 
 	final static int TENSECONDS = 10*1000;
 	final static int THIRTYSECONDS = 30*1000;
@@ -55,10 +55,11 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 	def termSearchResultsConverterV0Service;
 	
 	// New formats
+	def bioPortalVocabulariesListConversionService
 	def bioPortalTermSearchConversionService
 	def bioPortalTextMiningConverterService
 	// Collections ontology
-	def bioPortalTermSearchCollectionsConversionService
+	def bioPortalTermSearchCoConversionService
 	// Old Domeo format (deprecated)
 	def bioPortalTermSearchDomeoConversionService
 	def bioPortalTextMiningDomeoConversionService
@@ -70,6 +71,82 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 	// http://rest.bioontology.org/bioportal/search/?query=Gene&isexactmatch=1&apikey=fef6b9da-4b3b-46d2-9d83-9a1a718f6a22
 	// http://data.bioontology.org/search?q=melanoma (page of 50 items)
 	// http://data.bioontology.org/search?q=melanoma&page=2&pagesize=5 (page of 5 items)
+	
+	
+	@Override
+	public JSONObject retrieveVocabularies(HashMap parametrization) {
+		
+		log.info 'listVocabularies:Parametrization: ' + parametrization
+		long startTime = System.currentTimeMillis();
+		
+		try {
+			String apikey = verifyApikey(parametrization);
+
+			String pageNumber = (parametrization.get("pagenumber")?parametrization.get("pagenumber"):1);
+			String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):50);
+			
+			String uri = 'http://data.bioontology.org/ontologies' +
+				"?page=" + pageSize +
+				PAGE + pageNumber;
+			log.info("List vocabularies with URI: " + uri);
+
+			JSONObject jsonResponse = new JSONObject();
+			try {
+				def http = new HTTPBuilder(uri)
+				http.getClient().getParams().setParameter("http.connection.timeout", new Integer(TENSECONDS))
+				http.getClient().getParams().setParameter("http.socket.timeout", new Integer(THIRTYSECONDS))
+				http.encoderRegistry = new EncoderRegistry(charset: MiscUtils.DEFAULT_ENCODING)
+				evaluateProxy(http, uri);
+							
+				// perform a POST request, expecting TEXT response
+				http.request(Method.GET, ContentType.JSON) {
+					requestContentType = ContentType.URLENC
+					headers.'Authorization' = 'apikey token=' + apikey
+					
+					response.success = { resp, json ->			
+						if(true) {
+							
+							JSONObject jsonReturn = new JSONObject();
+							jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
+							jsonReturn.put("total", json.size());
+							
+							bioPortalVocabulariesListConversionService.convert(json, jsonReturn);
+							
+							jsonResponse.put("status", "results");
+							jsonResponse.put("result", jsonReturn);					
+						}						
+						return jsonResponse;
+					}
+					
+					response.'404' = { resp ->
+						log.error('Not found: ' + resp.getStatusLine())
+						throw new ConnectorHttpResponseException(resp, 404, 'Service not found. The problem has been reported')
+					}
+				 
+					response.'503' = { resp ->
+						log.error('Not available: ' + resp.getStatusLine())
+						throw new ConnectorHttpResponseException(resp, 503, 'Service temporarily not available. Try again later.')
+					}
+					
+					response.failure = { resp, xml ->
+						log.error('failure: ' + resp.getStatusLine())
+						throw new ConnectorHttpResponseException(resp, resp.getStatusLine())
+					}
+				}
+			} catch (groovyx.net.http.HttpResponseException ex) {
+				log.error("HttpResponseException: " + ex.getMessage())
+				throw new RuntimeException(ex);
+			} catch (java.net.ConnectException ex) {
+				log.error("ConnectException: " + ex.getMessage())
+				throw new RuntimeException(ex);
+			}
+		} catch(Exception e) {
+			JSONObject returnMessage = new JSONObject();
+			returnMessage.put("error", e.getMessage());
+			log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
+			return returnMessage;
+		}
+	}
 	
 	@Override
 	public JSONObject search(String content, HashMap parametrization) {
@@ -107,10 +184,10 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 					
 					response.success = { resp, json ->	
 						log.info json					
-						if(false) {
+						if(true) {
 							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else if(false) {
-							bioPortalTermSearchCollectionsConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+							bioPortalTermSearchCoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else {
 							// Default format
 							JSONObject jsonReturn = new JSONObject();

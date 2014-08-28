@@ -95,7 +95,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	
 	@Test
 	public void testWithApiKeyAndContentDefined() {
-		log.info "TEST:testWithApiKeyAndNoContentDefined"
+		log.info "TEST:testWithApiKeyAndContentDefined"
 		HashMap parameters = new HashMap();
 		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.textmine("http://paolociccarese.info", "APP protein accumulation is not good for humans.", parameters);
@@ -109,6 +109,16 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 		HashMap parameters = new HashMap();
 		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.search("APP", parameters);
+		log.info result
+		assertNotNull result
+	}
+	
+	@Test
+	public void testVocabulariesListWithApiKey() {
+		log.info "TEST:testVocabulariesListWithApiKey"
+		HashMap parameters = new HashMap();
+		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		JSONObject result = bioPortalService.retrieveVocabularies(parameters);
 		log.info result
 		assertNotNull result
 	}
