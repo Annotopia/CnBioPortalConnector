@@ -37,12 +37,12 @@ class BioPortalTermSearchConversionService {
 		jsonResponse.collection.each {  // iterate over JSON 'status' object in the response:
 			JSONObject element = new JSONObject();
 			element.put("@id", it['@id']);
-			element.put("rdfs:label", it.prefLabel);
-			element.put("dc:description", it.definition[0]);
+			element.put("label", it.prefLabel);			// rdfs:label
+			element.put("description", it.definition[0]);	// dc:description
 			
 			JSONObject source = new JSONObject();
 			source.put("@id", it.links.ontology);
-			element.put("rdf:isDefinedBy", source);
+			element.put("isDefinedBy", source);	// rdf:isDefinedBy
 			elements.add(element);
 		}
 		jsonResults.put("items", elements);
