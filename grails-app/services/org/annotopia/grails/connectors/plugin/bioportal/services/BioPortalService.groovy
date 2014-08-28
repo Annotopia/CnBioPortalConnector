@@ -57,6 +57,8 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 	// New formats
 	def bioPortalTermSearchConversionService
 	def bioPortalTextMiningConverterService
+	// Collections ontology
+	def bioPortalTermSearchCollectionsConversionService
 	// Old Domeo format (deprecated)
 	def bioPortalTermSearchDomeoConversionService
 	def bioPortalTextMiningDomeoConversionService
@@ -91,7 +93,6 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 				
 			log.info("Search term with URI: " + uri);
 
-			JSONObject jsonReturn = new JSONObject();
 			JSONObject jsonResponse = new JSONObject();
 			try {
 				def http = new HTTPBuilder(uri)
@@ -108,16 +109,20 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 						log.info json					
 						if(false) {
 							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+						} else if(false) {
+							bioPortalTermSearchCollectionsConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else {
-							bioPortalTermSearchConversionService.convert(json, jsonResponse, pageSize, ONTS2);
+							// Default format
+							JSONObject jsonReturn = new JSONObject();
+							jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
+							jsonReturn.put("total", "unknown");
+							jsonReturn.put("offset", Integer.parseInt(pageNumber)-1);
+							jsonReturn.put("max", pageSize);
 							
-							jsonReturn.put("status", "results");
+							bioPortalTermSearchConversionService.convert(json, jsonReturn, pageSize, ONTS2);
 							
-							jsonResponse.put("duration", System.currentTimeMillis() - startTime + "ms");
-							jsonResponse.put("total", "-1");
-							jsonResponse.put("offset", pageNumber);
-							jsonResponse.put("max", pageSize);
-							jsonReturn.put("result", jsonResponse);
+							jsonResponse.put("status", "results");
+							jsonResponse.put("result", jsonReturn);
 						}						
 					}
 					
@@ -150,12 +155,15 @@ class BioPortalService implements ITermSearchService, ITextMiningService {
 			} catch (java.net.ConnectException ex) {
 				log.error("ConnectException: " + ex.getMessage())
 				throw new RuntimeException(ex);
-			}			
-			return jsonReturn;
+			} catch (java.net.UnknownHostException ex) {
+				log.error("UnknownHostException: " + ex.getMessage())
+				throw new RuntimeException(ex);
+			}	
+			return jsonResponse;
 		} catch(Exception e) {
 			JSONObject returnMessage = new JSONObject();
 			returnMessage.put("error", e.getMessage());
-			log.error(e.getMessage());
+			log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
 			return returnMessage;
 		}
 	}

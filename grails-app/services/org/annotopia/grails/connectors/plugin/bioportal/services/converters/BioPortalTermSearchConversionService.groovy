@@ -32,14 +32,7 @@ class BioPortalTermSearchConversionService {
 	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 	
-	public void convert(def jsonResponse, JSONObject jsonResults, String pageSize, def ONTS2) {
-
-		// New implementation
-		println 'Page: ' + jsonResponse.page
-		println 'Page count: ' + jsonResponse.pageCount
-		println 'Previous page: ' + jsonResponse.prevPage
-		println 'Next page: ' + jsonResponse.nextPage
-		
+	public void convert(def jsonResponse, JSONObject jsonResults, String pageSize, def ONTS2) {		
 		JSONArray elements = new JSONArray();
 		jsonResponse.collection.each {  // iterate over JSON 'status' object in the response:
 			JSONObject element = new JSONObject();
@@ -53,5 +46,13 @@ class BioPortalTermSearchConversionService {
 			elements.add(element);
 		}
 		jsonResults.put("items", elements);
+		jsonResults.put("currentPage", jsonResponse.page);
+		jsonResults.put("totalPages", jsonResponse.pageCount);
+		
+		if(jsonResponse.prevPage==null) jsonResults.put("prevPage", "none");
+		else jsonResults.put("prevPage", jsonResponse.prevPage);
+		
+		if(jsonResponse.nextPage==null) jsonResults.put("nextPage", "none");
+		else jsonResults.put("nextPage", jsonResponse.nextPage);
 	}
 }
