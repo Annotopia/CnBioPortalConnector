@@ -73,7 +73,7 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 	
 	
 	@Override
-	public JSONObject retrieveVocabularies(HashMap parametrization) {
+	public JSONObject listVocabularies(HashMap parametrization) {
 		
 		log.info 'listVocabularies:Parametrization: ' + parametrization
 		long startTime = System.currentTimeMillis();
