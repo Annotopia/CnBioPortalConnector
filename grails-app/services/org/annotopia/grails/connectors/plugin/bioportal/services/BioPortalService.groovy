@@ -182,7 +182,7 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 					headers.'Authorization' = 'apikey token=' + apikey
 					
 					response.success = { resp, json ->	
-						log.info json					
+						//log.info json					
 						if(true) {
 							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else if(false) {
@@ -328,10 +328,10 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 	 * @return The apikey if specified.
 	 */
 	private String verifyApikey(HashMap parametrization) {
-		if(parametrization==null || !parametrization.containsKey(ITextMiningService.APY_KEY)) {
+		if(parametrization==null || !parametrization.containsKey(IConnectorsParameters.APY_KEY)) {
 			throw new RuntimeException('No apikey found');
 		} else {
-			return parametrization.get(ITextMiningService.APY_KEY).toString();
+			return parametrization.get(IConnectorsParameters.APY_KEY).toString();
 		}
 	}
 	

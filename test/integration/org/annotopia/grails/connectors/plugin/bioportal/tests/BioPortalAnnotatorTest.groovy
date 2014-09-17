@@ -23,6 +23,7 @@ package org.annotopia.grails.connectors.plugin.bioportal.tests;
 import static org.junit.Assert.*
 import grails.test.mixin.TestFor
 
+import org.annotopia.grails.connectors.IConnectorsParameters
 import org.annotopia.grails.connectors.ITextMiningService
 import org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalService
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -77,7 +78,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testWithApiKeyAndNoResourceDefined() {
 		log.info "TEST:testWithApiKeyAndNoResourceDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.textmine(null, null, parameters);
 		assertNotNull result.error
 		assertEquals result.error, 'No content found'
@@ -87,7 +88,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testWithApiKeyAndNoContentDefined() {
 		log.info "TEST:testWithApiKeyAndNoContentDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.textmine("http://paolociccarese.info", null, parameters);
 		assertNotNull result.error
 		assertEquals result.error, 'No content found'
@@ -97,7 +98,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testWithApiKeyAndContentDefined() {
 		log.info "TEST:testWithApiKeyAndContentDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.textmine("http://paolociccarese.info", "APP protein accumulation is not good for humans.", parameters);
 		log.info result
 		assertNotNull result
@@ -107,7 +108,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testSearchWithApiKeyAndContentDefined() {
 		log.info "TEST:testSearchWithApiKeyAndContentDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.search("APP", parameters);
 		log.info result
 		assertNotNull result
@@ -117,9 +118,9 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testVocabulariesListWithApiKey() {
 		log.info "TEST:testVocabulariesListWithApiKey"
 		HashMap parameters = new HashMap();
-		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 		JSONObject result = bioPortalService.listVocabularies(parameters);
-		log.info result
+		//log.info result
 		assertNotNull result
 	}
 }
