@@ -20,14 +20,13 @@
  */
 package org.annotopia.grails.connectors.plugin.bioportal.services
 
-import java.util.HashMap;
-
 import groovyx.net.http.ContentType
 import groovyx.net.http.EncoderRegistry
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 
 import org.annotopia.grails.connectors.ConnectorHttpResponseException
+import org.annotopia.grails.connectors.IConnectorsParameters
 import org.annotopia.grails.connectors.ITermSearchService
 import org.annotopia.grails.connectors.ITextMiningService
 import org.annotopia.grails.connectors.IVocabulariesListService
