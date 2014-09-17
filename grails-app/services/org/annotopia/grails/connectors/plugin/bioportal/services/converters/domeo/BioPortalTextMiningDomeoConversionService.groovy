@@ -49,6 +49,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 class BioPortalTextMiningDomeoConversionService {
 
+	public static final String RETURN_FORMAT = "domeo";
+	
 	def connectorsConfigAccessService;
 	
 	private static String URN_SNIPPET_PREFIX = "urn:domeo:contentsnippet:uuid:";

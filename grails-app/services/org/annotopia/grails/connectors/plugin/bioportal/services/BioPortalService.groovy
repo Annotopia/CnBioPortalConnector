@@ -32,6 +32,8 @@ import org.annotopia.grails.connectors.ITextMiningService
 import org.annotopia.grails.connectors.IVocabulariesListService
 import org.annotopia.grails.connectors.MiscUtils
 import org.annotopia.grails.connectors.plugin.bioportal.BioPortalAnnotatorRequestParameters
+import org.annotopia.grails.connectors.plugin.bioportal.services.converters.co.BioPortalTermSearchCoConversionService;
+import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTextMiningDomeoConversionService;
 import org.apache.http.conn.params.ConnRoutePNames
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -182,10 +184,12 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 					
 					response.success = { resp, json ->	
 						//log.info json					
-						if(true) {
-							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
-						} else if(false) {
-							bioPortalTermSearchCoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+						if(parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT) && 
+							parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTextMiningDomeoConversionService.RETURN_FORMAT)) {
+								bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+						} else if(parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT) && 
+							parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchCoConversionService.RETURN_FORMAT)) {
+								bioPortalTermSearchCoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else {
 							// Default format
 							JSONObject jsonReturn = new JSONObject();
@@ -278,8 +282,9 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 				headers.'Authorization' = 'apikey token=' + apikey
 				
 				response.success = { resp, json ->
-					if(false) {
-						jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, resourceUri, contentText, json)
+					if(parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT) && 
+						parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTextMiningDomeoConversionService.RETURN_FORMAT)) {
+							jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, resourceUri, contentText, json)
 					} else {
 						jsonResponse = bioPortalTextMiningConverterService.convert(apikey, resourceUri, contentText, json)
 					}

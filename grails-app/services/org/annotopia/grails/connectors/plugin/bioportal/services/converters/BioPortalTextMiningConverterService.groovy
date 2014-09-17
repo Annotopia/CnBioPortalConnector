@@ -41,6 +41,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 class BioPortalTextMiningConverterService {
 
+	public static final String RETURN_FORMAT = "annotopia";
+	
 	private static String URN_SNIPPET_PREFIX = "urn:domeo:contentsnippet:uuid:";
 	private static String URN_ANNOTATION_SET_PREFIX = "urn:domeo:annotationset:uuid:";
 	private static String URN_ANNOTATION_PREFIX = "urn:domeo:annotation:uuid:";

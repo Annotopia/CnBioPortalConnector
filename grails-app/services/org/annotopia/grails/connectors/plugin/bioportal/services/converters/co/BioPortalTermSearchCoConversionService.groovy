@@ -30,6 +30,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 class BioPortalTermSearchCoConversionService {
 	
+	public static final String RETURN_FORMAT = "collectionsontology";
+	
 	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 	
 	public void convert(def jsonResponse, JSONObject jsonResults, String pageSize, def ONTS2) {

@@ -29,6 +29,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 @Deprecated
 class BioPortalTermSearchDomeoConversionService {
 	
+	public static final String RETURN_FORMAT = "domeo";
+	
 	public void convert(def jsonResponse, JSONObject jsonResults, String pageSize, def ONTS2) {
 		jsonResults.put("pagesize", pageSize);
 		jsonResults.put("pagenumber", jsonResponse.page);
