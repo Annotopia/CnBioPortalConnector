@@ -47,6 +47,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
+@Deprecated
 class BioPortalTextMiningDomeoConversionService {
 
 	public static final String RETURN_FORMAT = "domeo";
