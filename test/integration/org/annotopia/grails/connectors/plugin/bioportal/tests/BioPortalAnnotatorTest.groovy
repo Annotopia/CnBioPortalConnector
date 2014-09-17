@@ -118,7 +118,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 		log.info "TEST:testVocabulariesListWithApiKey"
 		HashMap parameters = new HashMap();
 		parameters.put(ITextMiningService.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
-		JSONObject result = bioPortalService.retrieveVocabularies(parameters);
+		JSONObject result = bioPortalService.listVocabularies(parameters);
 		log.info result
 		assertNotNull result
 	}
