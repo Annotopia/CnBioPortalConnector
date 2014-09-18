@@ -11,7 +11,35 @@ grails.config.locations = ["classpath:${appName}-config.properties", "file:./${a
 
 environments {
 	development {
+		log4j = {
+		    appenders {
+				console name:'stdout', threshold: org.apache.log4j.Level.ALL, 
+					layout:pattern(conversionPattern: '%d{mm:ss,SSS} %5p %c{3} %m%n')
+			}
 		
+		    error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
+		           'org.codehaus.groovy.grails.web.pages', //  GSP
+		           'org.codehaus.groovy.grails.web.sitemesh', //  layouts
+		           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+		           'org.codehaus.groovy.grails.web.mapping', // URL mapping
+		           'org.codehaus.groovy.grails.commons', // core / classloading
+		           'org.codehaus.groovy.grails.plugins', // plugins
+		           'org.codehaus.groovy.grails.orm.hibernate', // hibernate integration
+		           'org.springframework',
+		           'org.hibernate',
+		           'net.sf.ehcache.hibernate'
+		
+		    warn   'org.mortbay.log'
+			
+			trace  'grails.app', // Necessary for Bootstrap logging
+				   'org.annotopia.grails.connectors',
+				   'grails.app.controllers.org.annotopia.grails.connectors.plugin.bioportal.controllers.BioPortalController',
+				   'grails.app.services.org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalService',
+				   'grails.app.services.org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalTextMiningService',
+				   'grails.app.services.org.annotopia.grails.connectors.plugin.bioportal.services.JsonBioPortalAnnotatorResultsConverterV0Service',
+			       'org.annotopia.grails.connectors.plugin.bioportal.tests'
+				  
+		}
 	}
 	test {
 		log4j = {
@@ -35,8 +63,11 @@ environments {
 		    warn   'org.mortbay.log'
 			
 			trace  'grails.app', // Necessary for Bootstrap logging
-				   'org.annotopia.grails.services.org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalTextMiningService',
-				   'org.annotopia.grails.services.org.annotopia.grails.connectors.plugin.bioportal.services.JsonBioPortalAnnotatorResultsConverterV0Service',
+				   'org.annotopia.grails.connectors',
+				   'grails.app.controllers.org.annotopia.grails.connectors.plugin.bioportal.controllers.BioPortalController',
+				   'grails.app.services.org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalService',
+				   'grails.app.services.org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalTextMiningService',
+				   'grails.app.services.org.annotopia.grails.connectors.plugin.bioportal.services.JsonBioPortalAnnotatorResultsConverterV0Service',
 			       'org.annotopia.grails.connectors.plugin.bioportal.tests'
 				  
 		}

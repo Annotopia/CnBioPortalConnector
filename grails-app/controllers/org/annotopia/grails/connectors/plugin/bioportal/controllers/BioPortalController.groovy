@@ -20,20 +20,84 @@
  */
 package org.annotopia.grails.connectors.plugin.bioportal.controllers
 
+import net.sf.json.util.JSONUtils
+
+import org.annotopia.grails.connectors.BaseController
+import org.annotopia.grails.connectors.IConnectorsParameters
+import org.codehaus.groovy.grails.web.json.JSONObject
+
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class BioPortalController {
+class BioPortalController extends BaseController {
 
+	def apiKeyAuthenticationService;
+	def bioPortalService;
+	
 	def search = {
+		long startTime = System.currentTimeMillis();
 		
+		def apiKey = request.JSON.apiKey;
+		if(apiKey==null) apiKey = params.apiKey;
+		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
+			invalidApiKey(request.getRemoteAddr()); return;
+		}
+
+		// Pagination
+		def max = (request.JSON.max!=null)?request.JSON.max:"10";
+		if(params.max!=null) max = params.max;
+		def offset = (request.JSON.offset!=null)?request.JSON.offset:"0";
+		if(params.offset!=null) offset = params.offset;
+		
+		// Return format
+		def format = (request.JSON.format!=null)?request.JSON.format:"annotopia";
+		if(params.format!=null) format = params.format;
+		
+		// Search query
+		def query = (request.JSON.q!=null)?request.JSON.q:"";
+		if(params.q!=null) query = params.q;
+		
+		if(query!=null && !query.empty) {
+			HashMap parameters = new HashMap();
+			parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+			parameters.put("pagenumber", Integer.parseInt(offset)+1);
+			parameters.put("pagesize", max);
+			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
+			JSONObject results = bioPortalService.search(query, parameters);
+			
+			def summaryPrefix = /*'"total":"' + annotationsTotal + '", ' +
+					'"pages":"' + annotationsPages + '", ' +*/
+					'"duration": "' + (System.currentTimeMillis()-startTime) + 'ms", ' +
+					'"offset": "' + offset + '", ' +
+					'"max": "' + max + '", ' +
+					'"items":[';
+					
+			response.outputStream << results.toString()
+			response.outputStream.flush()
+		} else {
+			def message = 'Query text is null';
+			render(status: 200, text: returnMessage(apiKey, "nocontent", message, startTime), contentType: "text/json", encoding: "UTF-8");
+			return;
+		}	
 	}
 	
 	def textmine = {
+		long startTime = System.currentTimeMillis();
 		
+		def apiKey = request.JSON.apiKey;
+		if(apiKey==null) apiKey = params.apiKey;
+		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
+			invalidApiKey(request.getRemoteAddr()); return;
+		}
 	}
 	
 	def vocabularies = {
+		long startTime = System.currentTimeMillis();
 		
+		def apiKey = request.JSON.apiKey;
+		if(apiKey==null) apiKey = params.apiKey;
+		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
+			invalidApiKey(request.getRemoteAddr()); return;
+		}
 	}
 }

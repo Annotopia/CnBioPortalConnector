@@ -165,7 +165,7 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 			String queryText = encodeContent(content);
 			
 			String pageNumber = (parametrization.get("pagenumber")?parametrization.get("pagenumber"):1);
-			String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):50);
+			String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):10);
 	
 			String uri = 'http://data.bioontology.org/search' + 
 				//APIKEY + apikey + 
