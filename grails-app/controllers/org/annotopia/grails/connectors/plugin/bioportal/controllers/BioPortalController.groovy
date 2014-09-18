@@ -34,6 +34,7 @@ class BioPortalController extends BaseController {
 	def apiKeyAuthenticationService;
 	def bioPortalService;
 	
+	// curl -i -X GET http://localhost:8080/cn/bioportal/search --header "Content-Type: application/json" --data '{"apiKey":"testKey","q":"APP","offset":"1","format":"domeo"}'
 	def search = {
 		long startTime = System.currentTimeMillis();
 		
@@ -74,6 +75,7 @@ class BioPortalController extends BaseController {
 		}	
 	}
 	
+	// curl -i -X POST http://localhost:8080/cn/bioportal/textmine --header "Content-Type: application/json" --data '{"apiKey":"testKey","text":"APP is bad for you","offset":"1","format":"annotopia"}'
 	def textmine = {
 		long startTime = System.currentTimeMillis();
 		
@@ -106,6 +108,7 @@ class BioPortalController extends BaseController {
 		}
 	}
 	
+	// curl -i -X GET http://localhost:8080/cn/bioportal/vocabularies --header "Content-Type: application/json" --data '{"apiKey":"testKey","offset":"1","format":"domeo"}'
 	def vocabularies = {
 		long startTime = System.currentTimeMillis();
 		
@@ -114,5 +117,17 @@ class BioPortalController extends BaseController {
 		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
 			invalidApiKey(request.getRemoteAddr()); return;
 		}
+		
+		// Return format
+		def format = (request.JSON.format!=null)?request.JSON.format:"annotopia";
+		if(params.format!=null) format = params.format;
+		
+		HashMap parameters = new HashMap();
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
+		JSONObject results = bioPortalService.listVocabularies(parameters);
+		
+		response.outputStream << results.toString()
+		response.outputStream.flush()		
 	}
 }
