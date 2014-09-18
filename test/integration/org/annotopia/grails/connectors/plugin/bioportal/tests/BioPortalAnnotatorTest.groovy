@@ -105,10 +105,33 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	}
 	
 	@Test
-	public void testSearchWithApiKeyAndContentDefined() {
-		log.info "TEST:testSearchWithApiKeyAndContentDefined"
+	public void testSearchWithApiKeyAndContentDefinedReturnAnnotopia() {
+		log.info "TEST:testSearchWithApiKeyAndContentDefinedReturnAnnotopia"
 		HashMap parameters = new HashMap();
 		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		//parameters.put(IConnectorsParameters.RETURN_FORMAT, "standard");
+		JSONObject result = bioPortalService.search("APP", parameters);
+		log.info result
+		assertNotNull result
+	}
+	
+	@Test
+	public void testSearchWithApiKeyAndContentDefinedReturnCo() {
+		log.info "TEST:testSearchWithApiKeyAndContentDefinedReturnCo"
+		HashMap parameters = new HashMap();
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.RETURN_FORMAT, "collectionsontology");
+		JSONObject result = bioPortalService.search("APP", parameters);
+		log.info result
+		assertNotNull result
+	}
+	
+	@Test
+	public void testSearchWithApiKeyAndContentDefinedReturnOre() {
+		log.info "TEST:testSearchWithApiKeyAndContentDefinedReturnCo"
+		HashMap parameters = new HashMap();
+		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.RETURN_FORMAT, "ore");
 		JSONObject result = bioPortalService.search("APP", parameters);
 		log.info result
 		assertNotNull result

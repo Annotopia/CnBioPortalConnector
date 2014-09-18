@@ -36,6 +36,7 @@ import org.annotopia.grails.connectors.plugin.bioportal.services.converters.co.B
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.co.BioPortalTextMiningCoConversionService
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTermSearchDomeoConversionService
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTextMiningDomeoConversionService
+import org.annotopia.grails.connectors.plugin.bioportal.services.converters.ore.BioPortalTermSearchOreConversionService
 import org.apache.http.conn.params.ConnRoutePNames
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -66,6 +67,8 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 	// Old Domeo format (deprecated)
 	def bioPortalTermSearchDomeoConversionService
 	def bioPortalTextMiningDomeoConversionService
+	// ORE
+	def bioPortalTermSearchOreConversionService
 	
 	final static PARAMS_ONTOLOGIES = 'ontologies'
 	final static ONTS1 = ["PR":"http://data.bioontology.org/ontologies/PR", "NIFSTD":"http://data.bioontology.org/ontologies/NIFSTD"]
@@ -192,6 +195,8 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchCoConversionService.RETURN_FORMAT)) {
 							bioPortalTermSearchCoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+						} else if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchOreConversionService.RETURN_FORMAT)) {
+							bioPortalTermSearchOreConversionService.convert(json, jsonResponse, pageSize, ONTS2)
 						} else {
 							// Default format
 							JSONObject jsonReturn = new JSONObject();
