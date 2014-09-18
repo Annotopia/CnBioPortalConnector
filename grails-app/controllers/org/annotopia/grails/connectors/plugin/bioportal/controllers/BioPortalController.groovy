@@ -98,7 +98,7 @@ class BioPortalController extends BaseController {
 			parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
 			JSONObject results = bioPortalService.textmine(null, text, parameters);
-
+			
 			response.outputStream << results.toString()
 			response.outputStream.flush()
 		} else {
