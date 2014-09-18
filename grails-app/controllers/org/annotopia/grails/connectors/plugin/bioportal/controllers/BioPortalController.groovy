@@ -65,13 +65,6 @@ class BioPortalController extends BaseController {
 			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
 			JSONObject results = bioPortalService.search(query, parameters);
 			
-			def summaryPrefix = /*'"total":"' + annotationsTotal + '", ' +
-					'"pages":"' + annotationsPages + '", ' +*/
-					'"duration": "' + (System.currentTimeMillis()-startTime) + 'ms", ' +
-					'"offset": "' + offset + '", ' +
-					'"max": "' + max + '", ' +
-					'"items":[';
-					
 			response.outputStream << results.toString()
 			response.outputStream.flush()
 		} else {
@@ -88,6 +81,28 @@ class BioPortalController extends BaseController {
 		if(apiKey==null) apiKey = params.apiKey;
 		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
 			invalidApiKey(request.getRemoteAddr()); return;
+		}
+		
+		// Return format
+		def format = (request.JSON.format!=null)?request.JSON.format:"annotopia";
+		if(params.format!=null) format = params.format;
+		
+		// Search query
+		def text = (request.JSON.text!=null)?request.JSON.text:"";
+		if(params.text!=null) text = params.text;
+		
+		if(text!=null && !text.empty) {
+			HashMap parameters = new HashMap();
+			parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
+			JSONObject results = bioPortalService.textmine(null, text, parameters);
+
+			response.outputStream << results.toString()
+			response.outputStream.flush()
+		} else {
+			def message = 'Content text is null';
+			render(status: 200, text: returnMessage(apiKey, "nocontent", message, startTime), contentType: "text/json", encoding: "UTF-8");
+			return;
 		}
 	}
 	

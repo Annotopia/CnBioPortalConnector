@@ -7,6 +7,11 @@ class UrlMappings {
 			action = [GET:"search"]
 		}
 		
+		"/cn/bioportal/textmine"{
+			controller = "bioPortal"
+			action = [POST:"textmine"]
+		}
+		
 		"/$controller/$action?/$id?"{
 			constraints {
 				// apply constraints here
