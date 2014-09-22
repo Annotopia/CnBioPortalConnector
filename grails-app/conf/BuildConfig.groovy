@@ -17,9 +17,6 @@ grails.project.dependency.resolution = {
 		mavenRepo "http://repository.codehaus.org/"
     }
     dependencies {
-        // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
-        // runtime 'mysql:mysql-connector-java:5.1.21'
     }
 
     plugins {
