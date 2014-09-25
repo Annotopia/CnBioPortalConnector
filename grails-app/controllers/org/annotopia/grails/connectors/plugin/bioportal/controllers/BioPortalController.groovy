@@ -20,16 +20,14 @@
  */
 package org.annotopia.grails.connectors.plugin.bioportal.controllers
 
-import net.sf.json.util.JSONUtils
-
-import org.annotopia.grails.connectors.BaseController
+import org.annotopia.grails.connectors.BaseConnectorController
 import org.annotopia.grails.connectors.IConnectorsParameters
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class BioPortalController extends BaseController {
+class BioPortalController extends BaseConnectorController {
 
 	def apiKeyAuthenticationService;
 	def bioPortalService;

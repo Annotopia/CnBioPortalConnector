@@ -25,6 +25,7 @@ import groovyx.net.http.EncoderRegistry
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.Method
 
+import org.annotopia.grails.connectors.BaseConnectorService
 import org.annotopia.grails.connectors.ConnectorHttpResponseException
 import org.annotopia.grails.connectors.IConnectorsParameters
 import org.annotopia.grails.connectors.ITermSearchService
@@ -43,7 +44,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class BioPortalService implements IVocabulariesListService, ITermSearchService, ITextMiningService {
+class BioPortalService extends BaseConnectorService implements IVocabulariesListService, ITermSearchService, ITextMiningService {
 
 	final static int TENSECONDS = 10*1000;
 	final static int THIRTYSECONDS = 30*1000;
@@ -400,13 +401,5 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 		}
 		return ontos.toString();
 	}
-	
-	private void evaluateProxy(HTTPBuilder http, String uri) {
-		if(connectorsConfigAccessService.isProxyDefined()) {
-			log.info("proxy: " + connectorsConfigAccessService.getProxyIp() + "-" + connectorsConfigAccessService.getProxyPort());
-			http.client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, connectorsConfigAccessService.getProxyHttpHost());
-		} else {
-			log.info("NO PROXY selected while accessing " + uri);
-		}
-	}
+
 }
