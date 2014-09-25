@@ -288,6 +288,8 @@ class BioPortalService implements IVocabulariesListService, ITermSearchService, 
 				requestContentType = ContentType.URLENC
 				headers.'Authorization' = 'apikey token=' + apikey
 				
+				contentText = URLDecoder.decode(contentText, "UTF-8");
+				
 				response.success = { resp, json ->
 					boolean isFormatDefined = parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT);
 					if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTextMiningDomeoConversionService.RETURN_FORMAT)) {

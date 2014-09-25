@@ -163,7 +163,7 @@ class BioPortalTextMiningDomeoConversionService {
 				JSONArray contexts = new JSONArray();
 				contexts.add(specificTarget);
 				
-				ann.put("oa:context", contexts);
+				ann.put("ao:context", contexts);
 				annotations.add(annotations.size(), ann);
 			}
 			annotationSet.put("ao:item", annotations);
