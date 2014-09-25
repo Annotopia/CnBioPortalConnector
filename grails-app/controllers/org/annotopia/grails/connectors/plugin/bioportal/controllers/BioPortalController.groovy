@@ -91,14 +91,14 @@ class BioPortalController extends BaseController {
 		
 		// Search query
 		def text = (request.JSON.text!=null)?request.JSON.text:"";
-		if(params.text!=null) text = params.text;
+		if(params.text!=null) text = URLDecoder.decode(params.text,"UTF-8");
 		
 		if(text!=null && !text.empty) {
 			HashMap parameters = new HashMap();
 			parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
 			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
 			JSONObject results = bioPortalService.textmine(null, text, parameters);
-			
+				
 			response.outputStream << results.toString()
 			response.outputStream.flush()
 		} else {
