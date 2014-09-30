@@ -352,20 +352,6 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 	}
 	
 	/**
-	 * Verifies the existence of the content. Returns an exception
-	 * if no content is defined. 
-	 * @param content The content to process.
-	 * @return The encoded content.
-	 */
-	private String encodeContent(String content) {
-		if(content==null || content.trim().length()==0) {
-			throw new RuntimeException('No content found');
-		} else {
-			return URLEncoder.encode(content.trim(), MiscUtils.DEFAULT_ENCODING);
-		}
-	}
-	
-	/**
 	 * Select either the ontologies specified with the parametrization or
 	 * the default list.
 	 * @param parametrization Map of parameters
