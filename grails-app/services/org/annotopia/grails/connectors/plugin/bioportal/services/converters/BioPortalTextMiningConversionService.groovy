@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import org.annotopia.grails.connectors.converters.BaseTextMiningConversionService
 import org.annotopia.grails.connectors.vocabularies.IOAccessRestrictions
 import org.annotopia.grails.connectors.vocabularies.IODomeo
 import org.annotopia.grails.connectors.vocabularies.IODublinCoreTerms
@@ -38,17 +39,10 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 /**
  * @author Paolo Ciccarese <paolo.ciccarese@gmail.com>
  */
-class BioPortalTextMiningConversionService {
+class BioPortalTextMiningConversionService extends BaseTextMiningConversionService {
 
+	/** The return format that this conversion service generates. */
 	public static final String RETURN_FORMAT = "annotopia";
-	
-	private static String URN_SNIPPET_PREFIX = "urn:domeo:contentsnippet:uuid:";
-	private static String URN_ANNOTATION_SET_PREFIX = "urn:domeo:annotationset:uuid:";
-	private static String URN_ANNOTATION_PREFIX = "urn:domeo:annotation:uuid:";
-	private static String URN_SPECIFIC_RESOURCE_PREFIX = "urn:domeo:specificresource:uuid:";
-	private static String URN_SELECTOR_PREFIX = "urn:domeo:selector:uuid:";
-	
-	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
 	
 	JSONObject convert(def apiKey, def url, def text, def results) {
 		String snippetUrn = URN_SNIPPET_PREFIX + org.annotopia.grails.connectors.utils.UUID.uuid();
@@ -130,7 +124,6 @@ class BioPortalTextMiningConversionService {
 		return annotationSet;
 	}
 	
-	private static Integer MAX_LENGTH_PREFIX_AND_SUFFIX=50
 	private JSONObject findOrCreateAndSaveSelectorUsingStringSearch(String text, String match, Integer start, Integer end){
 		//println text + " " + match+ " " + start + " ";
 		Map<String,Object> matchInfo = searchForMatch(text, match, start-1);  // -1 because they start from 1
@@ -145,54 +138,7 @@ class BioPortalTextMiningConversionService {
 		selector.put(IOOpenAnnotation.suffix, matchInfo.suffix);
 		return selector;
 	}
-	
-	private def searchForMatch(String textToAnnotate, String putativeExactMatch, int start) {
-		String matchRegex = putativeExactMatch.replaceAll(/\s+/,"\\\\s+")
-		matchRegex = matchRegex.replaceAll("[)]", "\\\\)")
-		matchRegex = matchRegex.replaceAll("[(]", "\\\\(")
-		Pattern pattern = Pattern.compile("\\b${matchRegex}\\b", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE)
-		Matcher matcher = pattern.matcher(textToAnnotate)
-		int startPos = -1
-		int endPos = -1
-		if (matcher.find(start)) {
-			println 'in'
-			startPos = matcher.start()
-			endPos = matcher.end()
-			String exactMatch = textToAnnotate[startPos..endPos - 1]
-			
-			String prefix = null;
-			if(startPos == 0) {
-				prefix = '';
-			} else {
-				 prefix = textToAnnotate.getAt([
-					 Math.max(startPos - (MAX_LENGTH_PREFIX_AND_SUFFIX + 1), 0)..Math.max(0, startPos - 1)
-				])
-			}
-			
-			String suffix = null;
-			if(Math.min(endPos, textToAnnotate.length() - 1)==Math.min(startPos + MAX_LENGTH_PREFIX_AND_SUFFIX, textToAnnotate.length()-1)) {
-				suffix = "";
-			} else {
-				suffix = textToAnnotate.getAt([
-					Math.min(endPos, textToAnnotate.length() - 1)..Math.min(startPos + MAX_LENGTH_PREFIX_AND_SUFFIX, textToAnnotate.length()-1)
-				])
-			}
-			
-			return ['offset':startPos,'prefix': prefix, 'exact': exactMatch, 'suffix': suffix]
-		}else{
-			println 'out'
-			return null
-		}
 
-	}
-	
-	private JSONObject getPublicPermissions() {
-		JSONObject permissions = new JSONObject();
-		permissions.put("permissions:isLocked", "false");
-		permissions.put("permissions:accessType", "urn:domeo:access:public");
-		permissions;
-	}
-	
 	private JSONObject getConnectorAgent() {
 		JSONObject bioportalConnector = new JSONObject();
 		def connectorUrn = "urn:domeo:software:service:ConnectorBioPortalService:0.1-001";
