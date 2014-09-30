@@ -140,14 +140,11 @@ class BioPortalTextMiningConversionService extends BaseTextMiningConversionServi
 	}
 
 	private JSONObject getConnectorAgent() {
-		JSONObject bioportalConnector = new JSONObject();
-		def connectorUrn = "urn:domeo:software:service:ConnectorBioPortalService:0.1-001";
-		bioportalConnector.put(IOJsonLd.jsonLdId, connectorUrn);
-		bioportalConnector.put(IOJsonLd.jsonLdType, "foafx:Software");
-		bioportalConnector.put(IORdfs.label, "BioPortalConnector");
-		bioportalConnector.put(IOFoaf.name, "BioPortalConnector");
-		bioportalConnector.put(IOPav.version, "0.1 b001");
-		bioportalConnector;
+		return getConnectorAgent(
+			"urn:domeo:software:service:ConnectorBioPortalService:0.1-001",
+			"BioPortalConnector",
+			"BioPortalConnector",
+			"0.1 b001");
 	}
 	
 	// http://data.bioontology.org/annotator
