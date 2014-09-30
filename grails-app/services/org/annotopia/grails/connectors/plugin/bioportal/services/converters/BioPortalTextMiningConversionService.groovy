@@ -140,7 +140,7 @@ class BioPortalTextMiningConversionService extends BaseTextMiningConversionServi
 	}
 
 	private JSONObject getConnectorAgent() {
-		return getConnectorAgent(
+		return getSoftwareAgent(
 			"urn:domeo:software:service:ConnectorBioPortalService:0.1-001",
 			"BioPortalConnector",
 			"BioPortalConnector",
@@ -149,12 +149,10 @@ class BioPortalTextMiningConversionService extends BaseTextMiningConversionServi
 	
 	// http://data.bioontology.org/annotator
 	private JSONObject getAnnotatorAgent() {
-		JSONObject ncboAnnotator = new JSONObject();
-		ncboAnnotator.put(IOJsonLd.jsonLdId, "http://www.bioontology.org/wiki/index.php/Annotator_Web_service");
-		ncboAnnotator.put(IOJsonLd.jsonLdType, "foafx:Software");
-		ncboAnnotator.put(IORdfs.label, "NCBO Annotator Web Service");
-		ncboAnnotator.put(IOFoaf.name, "NCBO Annotator Web Service");
-		ncboAnnotator.put(IOPav.version, "1.0");
-		ncboAnnotator
+		return getSoftwareAgent(
+			"http://www.bioontology.org/wiki/index.php/Annotator_Web_service",
+			"NCBO Annotator Web Service",
+			"NCBO Annotator Web Service",
+			"1.0");
 	}
 }
