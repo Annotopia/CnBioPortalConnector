@@ -29,6 +29,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 class BioPortalController extends BaseConnectorController {
 
+	def connectorsConfigAccessService;
+	def configAccessService;
 	def apiKeyAuthenticationService;
 	def bioPortalService;
 	
@@ -58,7 +60,7 @@ class BioPortalController extends BaseConnectorController {
 		
 		if(query!=null && !query.empty) {
 			HashMap parameters = new HashMap();
-			parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 			parameters.put("pagenumber", Integer.parseInt(offset)+1);
 			parameters.put("pagesize", max);
 			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
@@ -93,7 +95,7 @@ class BioPortalController extends BaseConnectorController {
 		
 		if(text!=null && !text.empty) {
 			HashMap parameters = new HashMap();
-			parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("plugins.connector.bioportal.apikey"))
 			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
 			JSONObject results = bioPortalService.textmine(null, text, parameters);
 				
@@ -121,7 +123,7 @@ class BioPortalController extends BaseConnectorController {
 		if(params.format!=null) format = params.format;
 		
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
 		JSONObject results = bioPortalService.listVocabularies(parameters);
 		

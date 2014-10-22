@@ -38,6 +38,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	def grailsApplication = new org.codehaus.groovy.grails.commons.DefaultGrailsApplication()
 	
 	def bioPortalService
+	def configAccessService
 	
 	private LOG_SEPARATOR() {
 		logSeparator('=' as char);
@@ -78,7 +79,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testWithApiKeyAndNoResourceDefined() {
 		log.info "TEST:testWithApiKeyAndNoResourceDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		JSONObject result = bioPortalService.textmine(null, null, parameters);
 		assertNotNull result.error
 		assertEquals result.error, 'No content found'
@@ -88,7 +89,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testWithApiKeyAndNoContentDefined() {
 		log.info "TEST:testWithApiKeyAndNoContentDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		JSONObject result = bioPortalService.textmine("http://paolociccarese.info", null, parameters);
 		assertNotNull result.error
 		assertEquals result.error, 'No content found'
@@ -98,7 +99,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testWithApiKeyAndContentDefined() {
 		log.info "TEST:testWithApiKeyAndContentDefined"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		JSONObject result = bioPortalService.textmine("http://paolociccarese.info", "APP protein accumulation is not good for humans.", parameters);
 		log.info result
 		assertNotNull result
@@ -108,7 +109,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testSearchWithApiKeyAndContentDefinedReturnAnnotopia() {
 		log.info "TEST:testSearchWithApiKeyAndContentDefinedReturnAnnotopia"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		//parameters.put(IConnectorsParameters.RETURN_FORMAT, "standard");
 		JSONObject result = bioPortalService.search("APP", parameters);
 		log.info result
@@ -119,7 +120,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testSearchWithApiKeyAndContentDefinedReturnCo() {
 		log.info "TEST:testSearchWithApiKeyAndContentDefinedReturnCo"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		parameters.put(IConnectorsParameters.RETURN_FORMAT, "collectionsontology");
 		JSONObject result = bioPortalService.search("APP", parameters);
 		log.info result
@@ -130,7 +131,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testSearchWithApiKeyAndContentDefinedReturnOre() {
 		log.info "TEST:testSearchWithApiKeyAndContentDefinedReturnCo"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		parameters.put(IConnectorsParameters.RETURN_FORMAT, "ore");
 		JSONObject result = bioPortalService.search("APP", parameters);
 		log.info result
@@ -141,7 +142,7 @@ class BioPortalAnnotatorTest extends GroovyTestCase {
 	public void testVocabulariesListWithApiKey() {
 		log.info "TEST:testVocabulariesListWithApiKey"
 		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, grailsApplication.config.annotopia.plugins.connector.bioportal.apikey)
+		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 		JSONObject result = bioPortalService.listVocabularies(parameters);
 		//log.info result
 		assertNotNull result
