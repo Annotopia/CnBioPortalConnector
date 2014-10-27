@@ -8,9 +8,8 @@ class CnBioPortalConnectorGrailsPlugin {
         "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
     def title = "Cn Bio Portal Connector Plugin" // Headline display name of the plugin
-	def service = "org.annotopia.grails.connectors.plugin.bioportal.services.BioPortalService"
+	def service = "BioPortalService"
     def author = "Dr. Paolo Ciccarese"
     def authorEmail = "paolo.ciccarese@gmail.com"
     def description = '''\
