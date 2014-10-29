@@ -95,7 +95,7 @@ class BioPortalController extends BaseConnectorController {
 		
 		if(text!=null && !text.empty) {
 			HashMap parameters = new HashMap();
-			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("plugins.connector.bioportal.apikey"))
+			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
 			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
 			JSONObject results = bioPortalService.textmine(null, text, parameters);
 				
