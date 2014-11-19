@@ -34,14 +34,13 @@ class BioPortalController extends BaseConnectorController {
 	def apiKeyAuthenticationService;
 	def bioPortalService;
 	
-	// curl -i -X GET http://localhost:8080/cn/bioportal/search --header "Content-Type: application/json" --data '{"apiKey":"testKey","q":"APP","offset":"1","format":"domeo"}'
+	// curl -i -X GET http://localhost:8090/cn/bioportal/search --header "Content-Type: application/json" --data '{"apiKey":"164bb0e0-248f-11e4-8c21-0800200c9a66","q":"APP","offset":"1","format":"domeo"}'
 	def search = {
 		long startTime = System.currentTimeMillis();
 		
-		def apiKey = request.JSON.apiKey;
-		if(apiKey==null) apiKey = params.apiKey;
-		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
-			invalidApiKey(request.getRemoteAddr()); return;
+		def apiKey = retrieveApiKey(startTime);
+		if(!apiKey) {
+			return;
 		}
 
 		// Pagination
@@ -50,13 +49,14 @@ class BioPortalController extends BaseConnectorController {
 		def offset = (request.JSON.offset!=null)?request.JSON.offset:"0";
 		if(params.offset!=null) offset = params.offset;
 		
-		// Return format
-		def format = (request.JSON.format!=null)?request.JSON.format:"annotopia";
-		if(params.format!=null) format = params.format;
+		// retrieve the return format
+		def format = retrieveValue(request.JSON.format, params.format, "annotopia");
 		
-		// Search query
-		def query = (request.JSON.q!=null)?request.JSON.q:"";
-		if(params.q!=null) query = params.q;
+		// retrieve the query
+		def query = retrieveValue(request.JSON.q, params.q, "q", startTime);
+		if(!query) {
+			return;
+		}
 		
 		if(query!=null && !query.empty) {
 			HashMap parameters = new HashMap();
