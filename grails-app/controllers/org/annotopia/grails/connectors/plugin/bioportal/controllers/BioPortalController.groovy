@@ -39,9 +39,7 @@ class BioPortalController extends BaseConnectorController {
 		long startTime = System.currentTimeMillis();
 		
 		def apiKey = retrieveApiKey(startTime);
-		if(!apiKey) {
-			return;
-		}
+		if(!apiKey) { return; }
 
 		// Pagination
 		def max = (request.JSON.max!=null)?request.JSON.max:"10";
@@ -54,9 +52,7 @@ class BioPortalController extends BaseConnectorController {
 		
 		// retrieve the query
 		def query = retrieveValue(request.JSON.q, params.q, "q", startTime);
-		if(!query) {
-			return;
-		}
+		if(!query) { return; }
 		
 		if(query!=null && !query.empty) {
 			HashMap parameters = new HashMap();
@@ -79,15 +75,11 @@ class BioPortalController extends BaseConnectorController {
 	def textmine = {
 		long startTime = System.currentTimeMillis();
 		
-		def apiKey = request.JSON.apiKey;
-		if(apiKey==null) apiKey = params.apiKey;
-		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
-			invalidApiKey(request.getRemoteAddr()); return;
-		}
+		def apiKey = retrieveApiKey(startTime);
+		if(!apiKey) { return; }
 		
-		// Return format
-		def format = (request.JSON.format!=null)?request.JSON.format:"annotopia";
-		if(params.format!=null) format = params.format;
+		// retrieve the return format
+		def format = retrieveValue(request.JSON.format, params.format, "annotopia");
 		
 		// Search query
 		def text = (request.JSON.text!=null)?request.JSON.text:"";
@@ -112,15 +104,11 @@ class BioPortalController extends BaseConnectorController {
 	def vocabularies = {
 		long startTime = System.currentTimeMillis();
 		
-		def apiKey = request.JSON.apiKey;
-		if(apiKey==null) apiKey = params.apiKey;
-		if(!apiKeyAuthenticationService.isApiKeyValid(request.getRemoteAddr(), apiKey)) {
-			invalidApiKey(request.getRemoteAddr()); return;
-		}
+		def apiKey = retrieveApiKey(startTime);
+		if(!apiKey) { return; }
 		
-		// Return format
-		def format = (request.JSON.format!=null)?request.JSON.format:"annotopia";
-		if(params.format!=null) format = params.format;
+		// retrieve the return format
+		def format = retrieveValue(request.JSON.format, params.format, "annotopia");
 		
 		HashMap parameters = new HashMap();
 		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
