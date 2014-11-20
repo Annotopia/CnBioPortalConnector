@@ -29,6 +29,8 @@ import org.codehaus.groovy.grails.web.json.JSONObject
  */
 class BioPortalController extends BaseConnectorController {
 
+	static String BIOPORTAL_API_KEY = "annotopia.plugins.connector.bioportal.apikey";
+	
 	def connectorsConfigAccessService;
 	def configAccessService;
 	def apiKeyAuthenticationService;
@@ -55,18 +57,26 @@ class BioPortalController extends BaseConnectorController {
 		if(!query) { return; }
 		
 		if(query!=null && !query.empty) {
-			HashMap parameters = new HashMap();
-			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
-			parameters.put("pagenumber", Integer.parseInt(offset)+1);
-			parameters.put("pagesize", max);
-			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
-			JSONObject results = bioPortalService.search(query, parameters);
+			try {
+				HashMap parameters = new HashMap();
+				parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString(BIOPORTAL_API_KEY))
+				parameters.put("pagenumber", Integer.parseInt(offset)+1);
+				parameters.put("pagesize", max);
+				parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
+				
+				JSONObject results = bioPortalService.search(query, parameters);
 			
-			response.outputStream << results.toString()
-			response.outputStream.flush()
+				response.outputStream << results.toString()
+				response.outputStream.flush()
+			} catch(Exception e) {
+				log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
+				render(status: 500, text: returnMessage(apiKey, "error", e.getMessage(), startTime), contentType: "text/json", encoding: "UTF-8");
+				return;
+			}
 		} else {
 			def message = 'Query text is null';
-			render(status: 200, text: returnMessage(apiKey, "nocontent", message, startTime), contentType: "text/json", encoding: "UTF-8");
+			log.error("Exception: " + message);
+			render(status: 400, text: returnMessage(apiKey, "nocontent", message, startTime), contentType: "text/json", encoding: "UTF-8");
 			return;
 		}	
 	}
@@ -86,16 +96,23 @@ class BioPortalController extends BaseConnectorController {
 		if(params.text!=null) text = URLDecoder.decode(params.text,"UTF-8");
 		
 		if(text!=null && !text.empty) {
-			HashMap parameters = new HashMap();
-			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
-			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
-			JSONObject results = bioPortalService.textmine(null, text, parameters);
-				
-			response.outputStream << results.toString()
-			response.outputStream.flush()
+			try {
+				HashMap parameters = new HashMap();
+				parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString(BIOPORTAL_API_KEY))
+				parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
+				JSONObject results = bioPortalService.textmine(null, text, parameters);
+					
+				response.outputStream << results.toString()
+				response.outputStream.flush()
+			} catch(Exception e) {
+				log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
+				render(status: 500, text: returnMessage(apiKey, "error", e.getMessage(), startTime), contentType: "text/json", encoding: "UTF-8");
+				return;
+			}
 		} else {
 			def message = 'Content text is null';
-			render(status: 200, text: returnMessage(apiKey, "nocontent", message, startTime), contentType: "text/json", encoding: "UTF-8");
+			log.error("Exception: " + message);
+			render(status: 400, text: returnMessage(apiKey, "nocontent", message, startTime), contentType: "text/json", encoding: "UTF-8");
 			return;
 		}
 	}
@@ -109,13 +126,18 @@ class BioPortalController extends BaseConnectorController {
 		
 		// retrieve the return format
 		def format = retrieveValue(request.JSON.format, params.format, "annotopia");
-		
-		HashMap parameters = new HashMap();
-		parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString("annotopia.plugins.connector.bioportal.apikey"))
-		parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
-		JSONObject results = bioPortalService.listVocabularies(parameters);
-		
-		response.outputStream << results.toString()
-		response.outputStream.flush()		
+		try {
+			HashMap parameters = new HashMap();
+			parameters.put(IConnectorsParameters.APY_KEY, configAccessService.getAsString(BIOPORTAL_API_KEY))
+			parameters.put(IConnectorsParameters.RETURN_FORMAT, format);
+			JSONObject results = bioPortalService.listVocabularies(parameters);
+			
+			response.outputStream << results.toString()
+			response.outputStream.flush()	
+		} catch(Exception e) {
+			log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
+			render(status: 500, text: returnMessage(apiKey, "error", e.getMessage(), startTime), contentType: "text/json", encoding: "UTF-8");
+			return;
+		}
 	}
 }

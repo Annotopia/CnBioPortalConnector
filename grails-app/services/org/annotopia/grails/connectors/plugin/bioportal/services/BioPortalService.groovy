@@ -38,7 +38,6 @@ import org.annotopia.grails.connectors.plugin.bioportal.services.converters.co.B
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTermSearchDomeoConversionService
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.domeo.BioPortalTextMiningDomeoConversionService
 import org.annotopia.grails.connectors.plugin.bioportal.services.converters.ore.BioPortalTermSearchOreConversionService
-import org.apache.http.conn.params.ConnRoutePNames
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
@@ -86,72 +85,68 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 		log.info 'listVocabularies:Parametrization: ' + parametrization
 		long startTime = System.currentTimeMillis();
 		
+		String apikey = verifyApikey(parametrization);
+
+		String pageNumber = (parametrization.get("pagenumber")?parametrization.get("pagenumber"):1);
+		String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):50);
+		
+		String uri = 'http://data.bioontology.org/ontologies' +
+			"?page=" + pageSize +
+			PAGE + pageNumber;
+		log.info("List vocabularies with URI: " + uri);
+
+		JSONObject jsonResponse = new JSONObject();
 		try {
-			String apikey = verifyApikey(parametrization);
-
-			String pageNumber = (parametrization.get("pagenumber")?parametrization.get("pagenumber"):1);
-			String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):50);
-			
-			String uri = 'http://data.bioontology.org/ontologies' +
-				"?page=" + pageSize +
-				PAGE + pageNumber;
-			log.info("List vocabularies with URI: " + uri);
-
-			JSONObject jsonResponse = new JSONObject();
-			try {
-				def http = new HTTPBuilder(uri)
-				http.getClient().getParams().setParameter("http.connection.timeout", new Integer(TENSECONDS))
-				http.getClient().getParams().setParameter("http.socket.timeout", new Integer(THIRTYSECONDS))
-				http.encoderRegistry = new EncoderRegistry(charset: MiscUtils.DEFAULT_ENCODING)
-				evaluateProxy(http, uri);
-							
-				// perform a POST request, expecting TEXT response
-				http.request(Method.GET, ContentType.JSON) {
-					requestContentType = ContentType.URLENC
-					headers.'Authorization' = 'apikey token=' + apikey
-					
-					response.success = { resp, json ->			
-						if(true) {
-							// Default format
-							JSONObject jsonReturn = new JSONObject();
-							jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
-							jsonReturn.put("total", json.size());
-							
-							bioPortalVocabulariesListConversionService.convert(json, jsonReturn);
-							
-							jsonResponse.put("status", "results");
-							jsonResponse.put("result", jsonReturn);					
-						}						
-						return jsonResponse;
-					}
-					
-					response.'404' = { resp ->
-						log.error('Not found: ' + resp.getStatusLine())
-						throw new ConnectorHttpResponseException(resp, 404, 'Service not found. The problem has been reported')
-					}
-				 
-					response.'503' = { resp ->
-						log.error('Not available: ' + resp.getStatusLine())
-						throw new ConnectorHttpResponseException(resp, 503, 'Service temporarily not available. Try again later.')
-					}
-					
-					response.failure = { resp, xml ->
-						log.error('failure: ' + resp.getStatusLine())
-						throw new ConnectorHttpResponseException(resp, resp.getStatusLine())
-					}
+			def http = new HTTPBuilder(uri)
+			http.getClient().getParams().setParameter("http.connection.timeout", new Integer(TENSECONDS))
+			http.getClient().getParams().setParameter("http.socket.timeout", new Integer(THIRTYSECONDS))
+			http.encoderRegistry = new EncoderRegistry(charset: MiscUtils.DEFAULT_ENCODING)
+			evaluateProxy(http, uri);
+						
+			// perform a POST request, expecting TEXT response
+			http.request(Method.GET, ContentType.JSON) {
+				requestContentType = ContentType.URLENC
+				headers.'Authorization' = 'apikey token=' + apikey
+				
+				response.success = { resp, json ->			
+					if(true) {
+						// Default format
+						JSONObject jsonReturn = new JSONObject();
+						jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
+						jsonReturn.put("total", json.size());
+						
+						bioPortalVocabulariesListConversionService.convert(json, jsonReturn);
+						
+						jsonResponse.put("status", "results");
+						jsonResponse.put("result", jsonReturn);					
+					}						
+					return jsonResponse;
 				}
-			} catch (groovyx.net.http.HttpResponseException ex) {
-				log.error("HttpResponseException: " + ex.getMessage())
-				throw new RuntimeException(ex);
-			} catch (java.net.ConnectException ex) {
-				log.error("ConnectException: " + ex.getMessage())
-				throw new RuntimeException(ex);
+				
+				response.'404' = { resp ->
+					log.error('Not found: ' + resp.getStatusLine())
+					throw new ConnectorHttpResponseException(resp, 404, 'Service not found. The problem has been reported')
+				}
+				response.'401' = { resp ->
+					log.error('UNAUTHORIZED access to URI: ' + uri)
+					throw new ConnectorHttpResponseException(resp, 401, 'Unauthorized access to the BioPortal service.')
+				}
+				response.'503' = { resp ->
+					log.error('Not available: ' + resp.getStatusLine())
+					throw new ConnectorHttpResponseException(resp, 503, 'Service temporarily not available. Try again later.')
+				}
+				
+				response.failure = { resp, xml ->
+					log.error('failure: ' + resp.getStatusLine())
+					throw new ConnectorHttpResponseException(resp, resp.getStatusLine().toString())
+				}
 			}
-		} catch(Exception e) {
-			JSONObject returnMessage = new JSONObject();
-			returnMessage.put("error", e.getMessage());
-			log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
-			return returnMessage;
+		} catch (groovyx.net.http.HttpResponseException ex) {
+			log.error("HttpResponseException: " + ex.getMessage())
+			throw new RuntimeException(ex);
+		} catch (java.net.ConnectException ex) {
+			log.error("ConnectException: " + ex.getMessage())
+			throw new RuntimeException(ex);
 		}
 	}
 	
@@ -160,99 +155,92 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 		log.info 'search:Content: ' + content + ' Parametrization: ' + parametrization
 		long startTime = System.currentTimeMillis();
 		
-		try {
-			String apikey = verifyApikey(parametrization);
-			String ontologies = selectOntologies(parametrization);
-			String queryText = encodeContent(content);
-			
-			String pageNumber = (parametrization.get("pagenumber")?parametrization.get("pagenumber"):1);
-			String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):10);
-	
-			String uri = 'http://data.bioontology.org/search' + 
-				//APIKEY + apikey + 
-				"?q=" + URLEncoder.encode(queryText, MiscUtils.DEFAULT_ENCODING)  +
-				ONTOLOGIES + ((!ontologies.isEmpty())?(ONTOLOGIES + ontologies):'') +
-				PAGESIZE + pageSize +
-				PAGE + pageNumber;
-				
-			log.info("Search term with URI: " + uri);
+		String apikey = verifyApikey(parametrization);
+		String ontologies = selectOntologies(parametrization);
+		String queryText = encodeContent(content);
+		
+		String pageNumber = (parametrization.get("pagenumber")?parametrization.get("pagenumber"):1);
+		String pageSize = (parametrization.get("pagesize")?parametrization.get("pagesize"):10);
 
-			JSONObject jsonResponse = new JSONObject();
-			try {
-				def http = new HTTPBuilder(uri)
-				http.getClient().getParams().setParameter("http.connection.timeout", new Integer(TENSECONDS))
-				http.getClient().getParams().setParameter("http.socket.timeout", new Integer(THIRTYSECONDS))				
-				http.encoderRegistry = new EncoderRegistry(charset: MiscUtils.DEFAULT_ENCODING)
-				evaluateProxy(http, uri);
+		String uri = 'http://data.bioontology.org/search' + 
+			//APIKEY + apikey + 
+			"?q=" + URLEncoder.encode(queryText, MiscUtils.DEFAULT_ENCODING)  +
+			ONTOLOGIES + ((!ontologies.isEmpty())?(ONTOLOGIES + ontologies):'') +
+			PAGESIZE + pageSize +
+			PAGE + pageNumber;
 			
-				http.request(Method.GET, ContentType.JSON) {
-					requestContentType = ContentType.URLENC
-					headers.'Authorization' = 'apikey token=' + apikey
-					
-					response.success = { resp, json ->	
-						//log.info json			
-						boolean isFormatDefined = parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT);		
-						if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchDomeoConversionService.RETURN_FORMAT)) {
-							bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
-						} else if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchCoConversionService.RETURN_FORMAT)) {
-							bioPortalTermSearchCoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
-						} else if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchOreConversionService.RETURN_FORMAT)) {
-							bioPortalTermSearchOreConversionService.convert(json, jsonResponse, pageSize, ONTS2)
-						} else {
-							// Default format
-							JSONObject jsonReturn = new JSONObject();
-							jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
-							jsonReturn.put("total", "unknown");
-							jsonReturn.put("offset", Integer.parseInt(pageNumber)-1);
-							jsonReturn.put("max", pageSize);
-							
-							bioPortalTermSearchConversionService.convert(json, jsonReturn, pageSize, ONTS2);
-							
-							jsonResponse.put("status", "results");
-							jsonResponse.put("result", jsonReturn);
-						}						
-					}
-					
-					response.'404' = { resp ->
-						log.error('NOT FOUND: ' + resp.getStatusLine())
-						throw new ConnectorHttpResponseException(resp, 404, 'Service not found. The problem has been reported')
-					}				 
-					response.'503' = { resp ->
-						log.error('NOT AVAILABLE: ' + resp.getStatusLine())
-						throw new ConnectorHttpResponseException(resp, 503, 'Service temporarily not available. Try again later.')
-					}
-					response.'401' = { resp ->
-						log.error('UNAUTHORIZED access to URI: ' + uri)
-						throw new ConnectorHttpResponseException(resp, 401, 'Unauthorized access ot the service.')
-					}
-					response.'400' = { resp ->
-						log.error('BAD REQUEST: ' + uri)
-						throw new ConnectorHttpResponseException(resp, 401, 'Unauthorized access ot the service.')
-					}					
-					response.failure = { resp, json ->
-						log.error('FAILURE: ' + resp.getStatusLine())
-					}
+		log.info("Search term with URI: " + uri);
+
+		JSONObject jsonResponse = new JSONObject();
+		try {
+			def http = new HTTPBuilder(uri)
+			http.getClient().getParams().setParameter("http.connection.timeout", new Integer(TENSECONDS))
+			http.getClient().getParams().setParameter("http.socket.timeout", new Integer(THIRTYSECONDS))				
+			http.encoderRegistry = new EncoderRegistry(charset: MiscUtils.DEFAULT_ENCODING)
+			evaluateProxy(http, uri);
+		
+			http.request(Method.GET, ContentType.JSON) {
+				requestContentType = ContentType.URLENC
+				headers.'Authorization' = 'apikey token=' + apikey
+				
+				response.success = { resp, json ->	
+					//log.info json			
+					boolean isFormatDefined = parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT);		
+					if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchDomeoConversionService.RETURN_FORMAT)) {
+						bioPortalTermSearchDomeoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+					} else if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchCoConversionService.RETURN_FORMAT)) {
+						bioPortalTermSearchCoConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+					} else if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTermSearchOreConversionService.RETURN_FORMAT)) {
+						bioPortalTermSearchOreConversionService.convert(json, jsonResponse, pageSize, ONTS2)
+					} else {
+						// Default format
+						JSONObject jsonReturn = new JSONObject();
+						jsonReturn.put("duration", System.currentTimeMillis() - startTime + "ms");
+						jsonReturn.put("total", "unknown");
+						jsonReturn.put("offset", Integer.parseInt(pageNumber)-1);
+						jsonReturn.put("max", pageSize);
+						
+						bioPortalTermSearchConversionService.convert(json, jsonReturn, pageSize, ONTS2);
+						
+						jsonResponse.put("status", "results");
+						jsonResponse.put("result", jsonReturn);
+					}						
 				}
-			} catch (groovyx.net.http.HttpResponseException ex) {
-				log.error("HttpResponseException: " + ex.getMessage())
-				throw new RuntimeException(ex);
-			}  catch (java.net.SocketTimeoutException ex) {
-				log.error("SocketTimeoutException: " + ex.getMessage())
-				throw new RuntimeException(ex);
-			} catch (java.net.ConnectException ex) {
-				log.error("ConnectException: " + ex.getMessage())
-				throw new RuntimeException(ex);
-			} catch (java.net.UnknownHostException ex) {
-				log.error("UnknownHostException: " + ex.getMessage())
-				throw new RuntimeException(ex);
-			}	
-			return jsonResponse;
-		} catch(Exception e) {
-			JSONObject returnMessage = new JSONObject();
-			returnMessage.put("error", e.getMessage());
-			log.error("Exception: " + e.getMessage() + " " + e.getClass().getName());
-			return returnMessage;
-		}
+				
+				response.'404' = { resp ->
+					log.error('NOT FOUND: ' + resp.getStatusLine())
+					throw new ConnectorHttpResponseException(resp, 404, 'Service not found. The problem has been reported')
+				}				 
+				response.'503' = { resp ->
+					log.error('NOT AVAILABLE: ' + resp.getStatusLine())
+					throw new ConnectorHttpResponseException(resp, 503, 'Service temporarily not available. Try again later.')
+				}
+				response.'401' = { resp ->
+					log.error('UNAUTHORIZED access to URI: ' + uri)
+					throw new ConnectorHttpResponseException(resp, 401, 'Unauthorized access ot the BioPortal service.')
+				}
+				response.'400' = { resp ->
+					log.error('BAD REQUEST: ' + uri)
+					throw new ConnectorHttpResponseException(resp, 401, 'Unauthorized access ot the service.')
+				}					
+				response.failure = { resp, json ->
+					log.error('FAILURE: ' + resp.getStatusLine().toString())
+				}
+			}
+		} catch (groovyx.net.http.HttpResponseException ex) {
+			log.error("HttpResponseException: " + ex.getMessage())
+			throw new RuntimeException(ex);
+		}  catch (java.net.SocketTimeoutException ex) {
+			log.error("SocketTimeoutException: " + ex.getMessage())
+			throw new RuntimeException(ex);
+		} catch (java.net.ConnectException ex) {
+			log.error("ConnectException: " + ex.getMessage())
+			throw new RuntimeException(ex);
+		} catch (java.net.UnknownHostException ex) {
+			log.error("UnknownHostException: " + ex.getMessage())
+			throw new RuntimeException(ex);
+		}	
+		return jsonResponse;
 	}
 	
 	@Override
@@ -292,6 +280,7 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 				contentText = URLDecoder.decode(contentText, "UTF-8");
 				
 				response.success = { resp, json ->
+					println json;
 					boolean isFormatDefined = parametrization.containsKey(IConnectorsParameters.RETURN_FORMAT);
 					if(isFormatDefined && parametrization.get(IConnectorsParameters.RETURN_FORMAT).equals(BioPortalTextMiningDomeoConversionService.RETURN_FORMAT)) {
 						jsonResponse = bioPortalTextMiningDomeoConversionService.convert(apikey, resourceUri, contentText, json)
@@ -306,7 +295,10 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 					log.error('Not found: ' + resp.getStatusLine())
 					throw new ConnectorHttpResponseException(resp, 404, 'Service not found. The problem has been reported')
 				}
-	
+				response.'401' = { resp ->
+					log.error('UNAUTHORIZED access to URI: ' + uri)
+					throw new ConnectorHttpResponseException(resp, 401, 'Unauthorized access to the BioPortal service.')
+				}
 				response.'503' = { resp ->
 					log.error('Not available: ' + resp.getStatusLine())
 					throw new ConnectorHttpResponseException(resp, 503, 'Service temporarily not available. Try again later.')
@@ -314,7 +306,7 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 	
 				response.failure = { resp, xml ->
 					log.error('Failure: ' + resp.getStatusLine())
-					throw new ConnectorHttpResponseException(resp, resp.getStatusLine())
+					throw new ConnectorHttpResponseException(resp, resp.getStatusLine().toString())
 				}
 			}
 		} catch (groovyx.net.http.HttpResponseException ex) {
@@ -323,12 +315,7 @@ class BioPortalService extends BaseConnectorService implements IVocabulariesList
 		} catch (java.net.ConnectException ex) {
 			log.error("ConnectException: " + ex.getMessage())
 			throw new RuntimeException(ex);
-		} catch(Exception e) {
-			JSONObject returnMessage = new JSONObject();
-			returnMessage.put("error", e.getMessage());
-			log.error(e.getMessage());
-			return returnMessage;
-		}
+		} 
 	}
 	
 	private BioPortalAnnotatorRequestParameters defaultParameters(){
