@@ -1,6 +1,8 @@
 CnBioPortalConnector
 ====================
 
+[![Join the chat at https://gitter.im/Annotopia/CnBioPortalConnector](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Annotopia/CnBioPortalConnector?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 BioPortal Connector Plugin is one of the components of the Annotopia project. Annotopia has been originally architected a
 nd developed by [Dr. Paolo Ciccarese](http://www.paolociccarse.info). 
 
